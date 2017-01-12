@@ -1,72 +1,67 @@
 import React, {Component} from 'react'
-import Comment from '../presentation/comment'
-import superagent from 'superagent'
+import {Comment, CreateComment} from '../presentation'
+import { APIManager } from '../../utils'
 import Styles from './styles'
 
 class Comments extends Component {
   constructor(){
     super()
     this.state = {
-      comment:{
-        username: '',
-        body: '',
-        timeStamp:''
-      },
+      // comment:{
+      //   username: '',
+      //   body: ''
+      // },
       list: []
     }
   }
   componentDidMount(){
-    superagent
-    .get('/api/comment')
-    .query(null)
-    .set('Accept','application/json')
-    .end((err, response)=>{
-      if(err){
-        alert("ERROR: " + err)
+    APIManager.get('/api/comment', null, (err, response)=>{
+      if (err){
+        alert("Error: "+ err.message)
         return
       }
-      let results = response.body.message
       this.setState({
-        list: results
+        list: response.message
       })
     })
-  }
-
-  submitComment(){
-    console.log("Comment Received: " + JSON.stringify(this.state.comment));
-
-    let newList = Object.assign([], this.state.lists)
-    newList.push(this.state.comment)
-    this.setState({
-      list: newList
-    })
 
   }
-  updateUsername(event){
-    //console.log("Update Username :" + event.target.value);
-    //this.state.comment['username'] = event.target.value // Wrong way
-    let updatedComment = Object.assign({}, this.state.comment)
-    updatedComment['username'] = event.target.value
-    this.setState({
-      comment: updatedComment
+
+  submitComment(comment){
+    console.log("Comment Received: " + JSON.stringify(comment));
+
+    APIManager.post('/api/comment', comment, (err, response)=>{
+      if(err){
+        alert("Error: " + err.message)
+        return
+      }
+      console.log(response.message);
+      let newList = Object.assign([], this.state.list)
+      newList.push(response.message)
+      this.setState({
+        list: newList
+      })
     })
+
+
   }
-  updateBody(event){
-    //console.log("comment : "+event.target.value);
-    let updatedComment = Object.assign({}, this.state.comment)
-    updatedComment['body'] = event.target.value
-    this.setState({
-      comment: updatedComment
-    })
-  }
-  updateTime(event){
-    //console.log("comment : "+event.target.value);
-    let updatedComment = Object.assign({}, this.state.comment)
-    updatedComment['timeStamp'] = event.target.value
-    this.setState({
-      comment: updatedComment
-    })
-  }
+  // updateUsername(event){
+  //   //console.log("Update Username :" + event.target.value);
+  //   //this.state.comment['username'] = event.target.value // Wrong way
+  //   let updatedComment = Object.assign({}, this.state.comment)
+  //   updatedComment['username'] = event.target.value
+  //   this.setState({
+  //     comment: updatedComment
+  //   })
+  // }
+  // updateBody(event){
+  //   //console.log("comment : "+event.target.value);
+  //   let updatedComment = Object.assign({}, this.state.comment)
+  //   updatedComment['body'] = event.target.value
+  //   this.setState({
+  //     comment: updatedComment
+  //   })
+  // }
 
   render(){
     const style = Styles.comment
@@ -78,16 +73,12 @@ class Comments extends Component {
 
     return(
       <div>
-      <h2> Zone 1 Comments</h2>
-      <div style={style.commentbox}>
-      <ul style = {Styles.liststyle} >
-        {commentList}
-      </ul>
-      <input onChange = {this.updateUsername.bind(this)} className="form-control" type="text" placeholder ="Username" /> <br />
-      <input onChange = {this.updateBody.bind(this)} className="form-control" type="text" placeholder ="Comment" /> <br />
-      <input onChange = {this.updateTime.bind(this)} className="form-control" type="text" placeholder ="TimeStamp" /> <br />
-      <button onClick={this.submitComment.bind(this)} className="btn btn-info">Submit</button>
-      </div>
+        <div style={style.commentbox}>
+          <ul style = {Styles.liststyle} >
+            {commentList}
+          </ul>
+          <CreateComment onCreate = {this.submitComment.bind(this)}/>
+        </div>
       </div>
     )
   }

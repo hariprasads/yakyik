@@ -22,7 +22,7 @@ export default {
     },
     link:{
       textDecoration:'none',
-      color:'blue'
+      color:'red'
     }
   },
   liststyle:{

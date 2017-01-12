@@ -7,6 +7,7 @@ class Home extends Component {
   render (){
     return(
       <div className="container">
+        <div className="header"><h1 style={{textAlign: "center"}}>Title</h1></div>
         <div className="row">
           <div className="col-md-4">
             <Zones />
